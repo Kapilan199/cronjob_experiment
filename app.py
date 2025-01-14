@@ -14,22 +14,6 @@ TEXT_FILE_NAME = os.getenv("TEXT_FILE_NAME", "timestamp.txt")
 
 app = Flask(__name__)
 
-import os
-from github import Github
-from git import Repo
-from datetime import datetime
-from flask import Flask, jsonify
-
-# Configuration
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "your_default_github_token")
-GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "your_default_github_username")
-REPO_NAME = os.getenv("REPO_NAME", "your_default_repo_name")
-LOCAL_REPO_PATH = os.getenv("LOCAL_REPO_PATH", os.path.join(os.getcwd(), "local_repo"))
-TEXT_FILE_NAME = os.getenv("TEXT_FILE_NAME", "timestamp.txt")
-
-app = Flask(__name__)
-
 def update_timestamp():
     # Step 1: Authenticate with GitHub
     g = Github(GITHUB_TOKEN)
@@ -84,14 +68,3 @@ def update_timestamp_endpoint():
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-@app.route('/update-timestamp', methods=['POST'])
-def update_timestamp_endpoint():
-    try:
-        timestamp = update_timestamp()
-        return jsonify({"message": "Timestamp updated successfully", "timestamp": timestamp}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
