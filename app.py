@@ -5,7 +5,6 @@ from datetime import datetime
 from flask import Flask, jsonify
 
 # Configuration
-
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "your_default_github_token")
 GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "your_default_github_username")
 REPO_NAME = os.getenv("REPO_NAME", "your_default_repo_name")
@@ -16,14 +15,12 @@ app = Flask(__name__)
 
 def update_timestamp():
     # Step 1: Authenticate with GitHub
-    g = Github(GITHUB_TOKEN)
-    user = g.get_user(GITHUB_USERNAME)
-    repo = user.get_repo(REPO_NAME)
+    repo_url = f'https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@github.com/{GITHUB_USERNAME}/{REPO_NAME}.git'
 
     # Step 2: Clone the repository if not already cloned
     if not os.path.exists(LOCAL_REPO_PATH):
         print(f"Cloning repository {REPO_NAME}...")
-        Repo.clone_from(repo.clone_url, LOCAL_REPO_PATH)
+        Repo.clone_from(repo_url, LOCAL_REPO_PATH)
 
     # Configure Git identity (set this for the local repository)
     repo_local = Repo(LOCAL_REPO_PATH)
@@ -67,4 +64,3 @@ def update_timestamp_endpoint():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
