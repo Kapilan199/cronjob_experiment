@@ -14,6 +14,22 @@ TEXT_FILE_NAME = os.getenv("TEXT_FILE_NAME", "timestamp.txt")
 
 app = Flask(__name__)
 
+import os
+from github import Github
+from git import Repo
+from datetime import datetime
+from flask import Flask, jsonify
+
+# Configuration
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "your_default_github_token")
+GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "your_default_github_username")
+REPO_NAME = os.getenv("REPO_NAME", "your_default_repo_name")
+LOCAL_REPO_PATH = os.getenv("LOCAL_REPO_PATH", os.path.join(os.getcwd(), "local_repo"))
+TEXT_FILE_NAME = os.getenv("TEXT_FILE_NAME", "timestamp.txt")
+
+app = Flask(__name__)
+
 def update_timestamp():
     # Step 1: Authenticate with GitHub
     g = Github(GITHUB_TOKEN)
@@ -24,6 +40,12 @@ def update_timestamp():
     if not os.path.exists(LOCAL_REPO_PATH):
         print(f"Cloning repository {REPO_NAME}...")
         Repo.clone_from(repo.clone_url, LOCAL_REPO_PATH)
+
+    # Configure Git identity (set this for the local repository)
+    repo_local = Repo(LOCAL_REPO_PATH)
+    with repo_local.config_writer() as config:
+        config.set_value("user", "name", "Kapilan Ramasamy")  # Replace with your name
+        config.set_value("user", "email", "kapilanr2003@gmail.com")  # Replace with your email
 
     # Print the resolved local repository path
     print(f"Resolved local repository path: {os.path.abspath(LOCAL_REPO_PATH)}")
@@ -37,7 +59,6 @@ def update_timestamp():
         f.write(timestamp)
 
     # Step 4: Commit and push changes
-    repo_local = Repo(LOCAL_REPO_PATH)
     repo_local.git.add(TEXT_FILE_NAME)
 
     commit_message = f"Update {TEXT_FILE_NAME} with timestamp {timestamp}"
@@ -50,6 +71,19 @@ def update_timestamp():
     print("Pushed changes to GitHub.")
 
     return timestamp
+
+
+@app.route('/update-timestamp', methods=['POST'])
+def update_timestamp_endpoint():
+    try:
+        timestamp = update_timestamp()
+        return jsonify({"message": "Timestamp updated successfully", "timestamp": timestamp}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 @app.route('/update-timestamp', methods=['POST'])
 def update_timestamp_endpoint():
