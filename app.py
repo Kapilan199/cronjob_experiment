@@ -53,6 +53,9 @@ def update_timestamp():
 
     return timestamp
 
+@app.route('/')
+def keep_alive():
+    return jsonify({"message": "Server is alive."}), 200
 
 @app.route('/update-timestamp', methods=['POST'])
 def update_timestamp_endpoint():
@@ -63,7 +66,6 @@ def update_timestamp_endpoint():
     except Exception as e:
         # Limit the response size by returning a concise error message
         return jsonify({"error": "An error occurred during the update. Please check server logs for details."}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
