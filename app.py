@@ -58,9 +58,12 @@ def update_timestamp():
 def update_timestamp_endpoint():
     try:
         timestamp = update_timestamp()
-        return jsonify({"message": "Timestamp updated successfully", "timestamp": timestamp}), 200
+        print(timestamp)
+        return jsonify({"message": "Timestamp updated successfully"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Limit the response size by returning a concise error message
+        return jsonify({"error": "An error occurred during the update. Please check server logs for details."}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
